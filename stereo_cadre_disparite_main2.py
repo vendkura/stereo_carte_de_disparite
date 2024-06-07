@@ -1,15 +1,10 @@
-
-
 ##################################
 # Dans ce code, nous affichons : 
 # - Les correspondances initiales
 # - Les correspondances finales
-# - Les points correspondants sur les deux images des epipoles sous formes de boutons de poivre sel
+# - Les points correspondants sur les deux images des epipoles sous formes de boutons de noirs
 # - Les droitees épipolaires
 ##################################
-
-
-# EPIPOLE MIS EN EVIDENCE AVEC LES POINTS CORRESPONDANTS ET LES LIGNES
 import cv2
 import numpy as np
 
@@ -52,7 +47,7 @@ def draw_matches(image1, keypoints1, image2, keypoints2, matches):
 def calculate_fundamental_matrix(matches, keypoints1, keypoints2):
     points1 = np.float32([keypoints1[m.queryIdx].pt for m in matches])
     points2 = np.float32([keypoints2[m.trainIdx].pt for m in matches])
-    F, mask = cv2.findFundamentalMat(points1, points2, cv2.FM_RANSAC, 3, 0.99)  # Ajustement des paramètres RANSAC
+    F, mask = cv2.findFundamentalMat(points1, points2, cv2.FM_RANSAC, 3, 0.99)
     inliers1 = points1[mask.ravel() == 1]
     inliers2 = points2[mask.ravel() == 1]
     return F, inliers1, inliers2
@@ -63,7 +58,7 @@ def draw_epipolar_lines(image1, image2, points1, points2, F):
     img1 = image1.copy()
     
     for r in lines1:
-        color = tuple(np.random.randint(0, 255, 3).tolist())
+        color = (0, 0, 255)  # Jaune
         x0, y0 = map(int, [0, -r[2] / r[1]])
         x1, y1 = map(int, [img1.shape[1], -(r[2] + r[0] * img1.shape[1]) / r[1]])
         img1 = cv2.line(img1, (x0, y0), (x1, y1), color, 1)
@@ -73,7 +68,7 @@ def draw_epipolar_lines(image1, image2, points1, points2, F):
     img2 = image2.copy()
 
     for r in lines2:
-        color = tuple(np.random.randint(0, 255, 3).tolist())
+        color = (0, 0, 255)  # Jaune
         x0, y0 = map(int, [0, -r[2] / r[1]])
         x1, y1 = map(int, [img2.shape[1], -(r[2] + r[0] * img2.shape[1]) / r[1]])
         img2 = cv2.line(img2, (x0, y0), (x1, y1), color, 1)
@@ -85,11 +80,11 @@ def draw_corresponding_points(image1, image2, points1, points2):
     img2 = image2.copy()
 
     for pt1, pt2 in zip(points1, points2):
-        color = tuple(np.random.randint(0, 255, 3).tolist())
+        color = (0, 255, 255)  # Jaune
         pt1 = tuple(map(int, pt1))
         pt2 = tuple(map(int, pt2))
-        img1 = cv2.circle(img1, pt1, 5, color, -1)
-        img2 = cv2.circle(img2, pt2, 5, color, -1)
+        img1 = cv2.circle(img1, pt1, 10, color, -1)
+        img2 = cv2.circle(img2, pt2, 10, color, -1)
 
     return img1, img2
 
@@ -140,5 +135,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 

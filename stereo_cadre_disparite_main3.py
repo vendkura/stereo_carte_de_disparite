@@ -1,15 +1,5 @@
+# EPIPOLES FAIT MAIS PAS DISTRIBUER SUR LES DEUX IMAGES
 
-
-##################################
-# Dans ce code, nous affichons : 
-# - Les correspondances initiales
-# - Les correspondances finales
-# - Les points correspondants sur les deux images des epipoles sous formes de boutons de poivre sel
-# - Les droitees épipolaires
-##################################
-
-
-# EPIPOLE MIS EN EVIDENCE AVEC LES POINTS CORRESPONDANTS ET LES LIGNES
 import cv2
 import numpy as np
 
@@ -52,7 +42,7 @@ def draw_matches(image1, keypoints1, image2, keypoints2, matches):
 def calculate_fundamental_matrix(matches, keypoints1, keypoints2):
     points1 = np.float32([keypoints1[m.queryIdx].pt for m in matches])
     points2 = np.float32([keypoints2[m.trainIdx].pt for m in matches])
-    F, mask = cv2.findFundamentalMat(points1, points2, cv2.FM_RANSAC, 3, 0.99)  # Ajustement des paramètres RANSAC
+    F, mask = cv2.findFundamentalMat(points1, points2, cv2.FM_RANSAC)
     inliers1 = points1[mask.ravel() == 1]
     inliers2 = points2[mask.ravel() == 1]
     return F, inliers1, inliers2
@@ -80,19 +70,6 @@ def draw_epipolar_lines(image1, image2, points1, points2, F):
 
     return img1, img2
 
-def draw_corresponding_points(image1, image2, points1, points2):
-    img1 = image1.copy()
-    img2 = image2.copy()
-
-    for pt1, pt2 in zip(points1, points2):
-        color = tuple(np.random.randint(0, 255, 3).tolist())
-        pt1 = tuple(map(int, pt1))
-        pt2 = tuple(map(int, pt2))
-        img1 = cv2.circle(img1, pt1, 5, color, -1)
-        img2 = cv2.circle(img2, pt2, 5, color, -1)
-
-    return img1, img2
-
 def main():
     size = (600, 800)
     image_gauche = load_and_resize_image('./images/imgL.jpg', size)
@@ -104,12 +81,6 @@ def main():
     matches = match_features(descriptors_gauche, descriptors_droite, 0.8)
     print(f"Nombre de correspondances SIFT: {len(matches)}")
     
-    # Afficher les correspondances avant filtrage
-    image_correspondances_initial = draw_matches(image_gauche, keypoints_gauche, image_droite, keypoints_droite, matches)
-    cv2.imshow('Correspondances Initiales', image_correspondances_initial)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    
     # Filtrage des correspondances
     matches = filter_matches_by_distance(matches, 300)
     matches = filter_matches_by_horizontal_alignment(keypoints_gauche, keypoints_droite, matches, 50)
@@ -118,16 +89,9 @@ def main():
     F, inliers1, inliers2 = calculate_fundamental_matrix(matches, keypoints_gauche, keypoints_droite)
     print("Matrice Fondamentale:", F)
 
-    # Afficher les correspondances après filtrage
+    # Afficher les correspondances
     image_correspondances_final = draw_matches(image_gauche, keypoints_gauche, image_droite, keypoints_droite, matches)
     cv2.imshow('Correspondances Finale', image_correspondances_final)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-    # Afficher les points correspondants
-    img1_with_points, img2_with_points = draw_corresponding_points(image_gauche, image_droite, inliers1, inliers2)
-    cv2.imshow('Points Correspondants Gauche', img1_with_points)
-    cv2.imshow('Points Correspondants Droite', img2_with_points)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
@@ -140,5 +104,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
