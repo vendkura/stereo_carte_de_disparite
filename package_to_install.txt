@@ -1,0 +1,4 @@
+RUN THE FOLLOWING PACKAGES : 
+pip install opencv-python;
+pip install opencv-contrib-python;
+pip install matplotlib;
